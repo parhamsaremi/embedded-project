@@ -1,11 +1,11 @@
+
+
 #include <SPI.h>
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 #include <Keypad.h>
-
-#include "default_qr.h"
-
+#include <qrcode.h>
 
 /* LCD */
 
@@ -52,6 +52,7 @@ unsigned char state;
 
 void print_char(char c);
 void print_str(char* c);
+void PrintQRCode(const char * url);
 
 void setup() {
   Serial.begin(9600);
@@ -71,6 +72,7 @@ void setup() {
 
   digitalWrite(relay_1, HIGH);
   digitalWrite(relay_2, HIGH);
+
 }
 
 void loop() {
@@ -100,15 +102,14 @@ void loop() {
     //TODO: ask server for a qr code and wait for server response 
     //then go to show_qr state
     print_str("please wait...");
-    delay(1000);
+    delay(100);  
+
     state= SHOW_QR;
     break;
   }
   case SHOW_QR:
   {
-     display.clearDisplay(); //for Clearing the display
-     display.drawBitmap(0, 0, default_QR, 128, 64, WHITE); // display.drawBitmap(x position, y position, bitmap data, bitmap width, bitmap height, color)
-     display.display();
+     PrintQRCode("Embedded project :D");
      delay(2000);
 
     //TODO: show the qr
@@ -171,3 +172,28 @@ void print_char(char c)
   display.println(c);
   display.display();
   }
+
+ void PrintQRCode(const char * data){
+  QRCode qrcode;
+
+  const int ps = 2; //pixels / square
+  int QRCODE_VERSION = 3;
+  uint8_t qrcodeData[qrcode_getBufferSize(QRCODE_VERSION)];
+  qrcode_initText(&qrcode, qrcodeData, QRCODE_VERSION, ECC_LOW, data);
+
+  display.clearDisplay();
+  int offset = 32;
+  for (uint8_t y = 0; y < qrcode.size; y++) {
+    for (uint8_t x = 0; x < qrcode.size; x++) {
+      //If pixel is on, we draw a ps x ps black square
+      if(qrcode_getModule(&qrcode, x, y)){
+        for(int xi = offset + x*ps; xi < offset + x*ps + ps; xi++){
+          for(int yi= y*ps + 2; yi < y*ps + ps + 2; yi++){
+            display.drawPixel(xi, yi, WHITE);
+          }
+        }
+      }
+    }
+  }
+   display.display();
+}
