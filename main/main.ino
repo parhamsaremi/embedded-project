@@ -6,6 +6,9 @@
 
 #include "default_qr.h"
 
+
+/* LCD */
+
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
 
@@ -13,12 +16,9 @@
 #define OLED_RESET     A3 // Reset pin # (or -1 if sharing Arduino reset pin)
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
-#define NUMFLAKES     10 // Number of snowflakes in the animation example
-
-#define LOGO_HEIGHT   16
-#define LOGO_WIDTH    16
 
 
+/* KEYPAD */
 const byte ROWS = 4, COLS = 4;
 
 char hexaKeys[ROWS][COLS] = {
@@ -34,13 +34,21 @@ byte colPins[COLS] = {5, 4, 3, 2};
 Keypad customKeypad = Keypad(makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS);
 
 
+/* RELAY */
+
+const int relay_1 = 13;
+const int relay_2 = 12;
+
+
+/* STATES */
+
 #define WAIT 0
 #define GET_QR 1
 #define SHOW_QR 2
 #define OPEN_DOOR 3
 
-
 unsigned char state;
+
 
 void print_char(char c);
 void print_str(char* c);
@@ -57,10 +65,16 @@ void setup() {
   delay(100);
 
   state = WAIT;
+  
+  pinMode(relay_1, OUTPUT);
+  pinMode(relay_2, OUTPUT);
 
+  digitalWrite(relay_1, HIGH);
+  digitalWrite(relay_2, HIGH);
 }
 
 void loop() {
+
   switch (state)
   {
   case WAIT:
@@ -86,7 +100,7 @@ void loop() {
     //TODO: ask server for a qr code and wait for server response 
     //then go to show_qr state
     print_str("please wait...");
-    delay(1500);
+    delay(1000);
     state= SHOW_QR;
     break;
   }
@@ -101,15 +115,27 @@ void loop() {
     //then wait for server to send response
     //wait for xx seconds 
     //if response was go to state open door
-    //else go to idle (and print message on lcd)
+    //else go to wait (and print message on lcd)
+    
     state = OPEN_DOOR;
     break;
   }
   case OPEN_DOOR:
   {
       print_str("opening...");
-      delay(1500);
-
+      
+      digitalWrite(relay_1, LOW);
+      digitalWrite(relay_2, HIGH);
+      delay(1000);
+      
+      print_str("closing...");
+      digitalWrite(relay_1, HIGH);
+      digitalWrite(relay_2, LOW);
+      
+      delay(1000);
+      digitalWrite(relay_1, HIGH);
+      digitalWrite(relay_2, HIGH);
+  
       //TODO: open the door, wait for xx seconds, close the door
       state = WAIT;
     break;
