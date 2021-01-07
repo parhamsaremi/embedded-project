@@ -12,10 +12,8 @@
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
 
-// Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
 #define OLED_RESET     A3 // Reset pin # (or -1 if sharing Arduino reset pin)
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
-
 
 
 /* KEYPAD */
@@ -50,9 +48,14 @@ const int relay_2 = 12;
 unsigned char state;
 
 
+/* FUNCTIONS */
+
 void print_char(char c);
 void print_str(char* c);
 void PrintQRCode(const char * url);
+
+
+/* SETUP */
 
 void setup() {
   Serial.begin(9600);
@@ -74,6 +77,9 @@ void setup() {
   digitalWrite(relay_2, HIGH);
 
 }
+
+
+/* LOOP */
 
 void loop() {
 
@@ -141,21 +147,16 @@ void loop() {
       state = WAIT;
     break;
   }
-  default:
-  {
-  print_str("???");
-  delay(500);
-    break;
-  }
+  
   }
 }
 
 void print_char(char c)
 {
   display.clearDisplay();
-  display.setTextSize(1);      // Normal 1:1 pixel scale
-  display.setTextColor(SSD1306_WHITE); // Draw white text
-  display.setCursor(0, 0);     // Start at top-left corner
+  display.setTextSize(1);      
+  display.setTextColor(SSD1306_WHITE); 
+  display.setCursor(0, 0);    
   display.cp437(true);         // Use full 256 char 'Code Page 437' font
   display.write(c);
   display.display();
@@ -165,9 +166,9 @@ void print_char(char c)
  {
 
   display.clearDisplay();
-  display.setTextSize(1);      // Normal 1:1 pixel scale
-  display.setTextColor(SSD1306_WHITE); // Draw white text
-  display.setCursor(0, 0);     // Start at top-left corner
+  display.setTextSize(1);      
+  display.setTextColor(SSD1306_WHITE); 
+  display.setCursor(0, 0);     
   display.cp437(true);         // Use full 256 char 'Code Page 437' font
   display.println(c);
   display.display();
@@ -177,7 +178,8 @@ void print_char(char c)
   QRCode qrcode;
 
   const int ps = 2; //pixels / square
-  int QRCODE_VERSION = 3;
+  
+  int QRCODE_VERSION = 3; 
   uint8_t qrcodeData[qrcode_getBufferSize(QRCODE_VERSION)];
   qrcode_initText(&qrcode, qrcodeData, QRCODE_VERSION, ECC_LOW, data);
 
@@ -187,6 +189,7 @@ void print_char(char c)
     for (uint8_t x = 0; x < qrcode.size; x++) {
       //If pixel is on, we draw a ps x ps black square
       if(qrcode_getModule(&qrcode, x, y)){
+        
         for(int xi = offset + x*ps; xi < offset + x*ps + ps; xi++){
           for(int yi= y*ps + 2; yi < y*ps + ps + 2; yi++){
             display.drawPixel(xi, yi, WHITE);
@@ -195,5 +198,6 @@ void print_char(char c)
       }
     }
   }
+  
    display.display();
 }
