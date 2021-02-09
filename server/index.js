@@ -13,7 +13,7 @@ let token = undefined;
 let timeout = 25; //seconds
 let time = Date.now();
 let code_length = 8;
-let macs = ['a','b']
+let macs = ['00:90:4C:C9:AB:EF','70:8A:09:73:7A:E6','80:CE:B9:4B:B4:15']
 generateCode = function(length){
   var id = crypto.randomBytes(length/2).toString('hex');
   return id
@@ -40,7 +40,7 @@ app.post("/check_code", (req, res) => {
       
       setTimeout(()=>{
         lock = false
-      }, 4000);
+      }, 10000);
 
       res.send("the door is open now")
       return
