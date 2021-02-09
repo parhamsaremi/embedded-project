@@ -20,8 +20,9 @@ generateCode = function(length){
 }
 
 app.get("/get_code", (req, res) => {
-  token = generateCode(code_length)
-  time = Date.now()
+  token = generateCode(code_length);
+  lock = false;
+  time = Date.now();
   res.send(token);
 });
 
@@ -31,18 +32,18 @@ app.get("/get_lock", (req, res) => {
 
 app.post("/check_code", (req, res) => {
   if(Date.now() - time > timeout*1000){
-    res.send('timeout')
+    res.send('timeout');
     return
   }
   if(token === req.body.token){
     if (macs.includes(req.body.mac)){
-      lock =true
+      lock =true;
       
       setTimeout(()=>{
-        lock = false
+        lock = false;
       }, 10000);
 
-      res.send("the door is open now")
+      res.send("opened");
       return
     }
     res.send("device not valid")
@@ -54,7 +55,7 @@ app.post("/check_code", (req, res) => {
 });
 
 app.get("/", (req, res) => {
-  res.send("Welcome to our Embedded Project: Seyede Saba Hashemi, Hanyieh Ehsani Oskooi, Parham Saremi");
+  res.send("Welcome");
 });
 
 app.listen(port, () => {

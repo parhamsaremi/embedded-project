@@ -24,7 +24,6 @@ dependencies:
   qr_code_scanner: ^0.3.1
   get_mac: ^0.0.1
   dio: 3.0.10
-  device_info: ^1.0.0
   flutter:
     sdk: flutter
 
