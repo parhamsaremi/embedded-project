@@ -10,7 +10,7 @@ app.use(bodyParser.urlencoded());
 
 let lock = false;
 let token = undefined;
-let timeout = 25; //seconds
+let timeout = 40; //seconds
 let time = Date.now();
 let code_length = 8;
 let macs = ['00:90:4C:C9:AB:EF','70:8A:09:73:7A:E6','80:CE:B9:4B:B4:15']
@@ -31,11 +31,12 @@ app.get("/get_lock", (req, res) => {
 });
 
 app.post("/check_code", (req, res) => {
-  if(Date.now() - time > timeout*1000){
-    res.send('timeout');
+  let a = Date.now() - time
+  if(a > timeout*1000){
+    res.send("timeout " + a.toString());
     return
   }
-  if(token === req.body.token){
+  if(token.toString().trim() === req.body.token.toString().trim()){
     if (macs.includes(req.body.mac)){
       lock =true;
       
@@ -46,12 +47,12 @@ app.post("/check_code", (req, res) => {
       res.send("opened");
       return
     }
-    res.send("device not valid")
+    res.send("device not valid mac: "+ req.body.mac)
     return
   }
 
 
-  res.send("token not valid");
+  res.send("token not valid: "+ req.body.token + " " + token);
 });
 
 app.get("/", (req, res) => {
